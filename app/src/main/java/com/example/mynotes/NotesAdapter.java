@@ -9,10 +9,11 @@ import androidx.annotation.NonNull;
 import androidx.recyclerview.widget.RecyclerView;
 
 import java.util.ArrayList;
+import java.util.List;
 
 public class NotesAdapter  extends RecyclerView.Adapter<NotesAdapter.NotesViewHolder> {
 
-    private ArrayList<Note> noteArrayList;
+    private List<Note> noteArrayList;
     private OnNoteClickListener onNoteClickListener;
 
     public NotesAdapter(ArrayList<Note> noteArrayList) {
@@ -100,5 +101,14 @@ public class NotesAdapter  extends RecyclerView.Adapter<NotesAdapter.NotesViewHo
             });
 
         }
+    }
+
+    public void setNotes(List<Note> noteArrayList) {
+        this.noteArrayList = noteArrayList;
+        notifyDataSetChanged();
+    }
+
+    public List<Note> getNoteArrayList() {
+        return noteArrayList;
     }
 }

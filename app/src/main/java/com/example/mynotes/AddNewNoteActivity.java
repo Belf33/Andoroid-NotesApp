@@ -2,6 +2,8 @@ package com.example.mynotes;
 
 import androidx.appcompat.app.ActionBar;
 import androidx.appcompat.app.AppCompatActivity;
+import androidx.lifecycle.ViewModelProvider;
+import androidx.lifecycle.ViewModelProviders;
 
 import android.content.ContentValues;
 import android.content.Intent;
@@ -25,11 +27,9 @@ public class AddNewNoteActivity extends AppCompatActivity {
     RadioGroup radioGroup;
     Spinner spinner;
     Button createButton;
-    NotesDbHelper notesDbHelper;
-    SQLiteDatabase database;
+    MainViewModel viewModel;
 
     int priority = 0;
-
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -37,11 +37,11 @@ public class AddNewNoteActivity extends AppCompatActivity {
         setContentView(R.layout.activity_add_new_note);
         ActionBar actionBar = getSupportActionBar();
 
-        if(actionBar != null)
+        if (actionBar != null)
             actionBar.hide();
 
-        notesDbHelper = new NotesDbHelper(this);
-        database  = notesDbHelper.getWritableDatabase();
+        viewModel = ViewModelProviders.of(this).get(MainViewModel.class);
+
         title = findViewById(R.id.newNotetitle);
         description = findViewById(R.id.newNotedescription);
         spinner = findViewById(R.id.daysOfWeekSpinner);
@@ -60,23 +60,18 @@ public class AddNewNoteActivity extends AppCompatActivity {
         priority = Integer.parseInt(selectedRadio.getText().toString());
 
         if (isFilled(titleText, descriptionText)) {
-            ContentValues contentValues = new ContentValues();
-            contentValues.put(NotesContract.NotesEntry.COLUMN_TITLE, titleText);
-            contentValues.put(NotesContract.NotesEntry.COLUMN_DESCRIPTION, descriptionText);
-            contentValues.put(NotesContract.NotesEntry.COLUMN_DAY_OF_WEEK, dayOfWeek);
-            contentValues.put(NotesContract.NotesEntry.COLUMN_PRIORITY, priority);
-
-            database.insert(NotesContract.NotesEntry.TABLE_NAME, null, contentValues);
+            Note note = new Note(titleText, descriptionText, dayOfWeek, priority);
+            viewModel.insertNote(note);
 
             Intent intent = new Intent(this, MainActivity.class);
             startActivity(intent);
             finish();
-        } else Toast.makeText(getApplicationContext(), "Check if all Fields are filled", Toast.LENGTH_SHORT).show();
+        } else {
+            Toast.makeText(getApplicationContext(), "Title and description should be filled", Toast.LENGTH_SHORT).show();
+        }
     }
 
     private boolean isFilled(String title, String description) {
-        if(title.isEmpty() || description.isEmpty())
-            return false;
-        return true;
+        return !title.isEmpty() && !description.isEmpty();
     }
 }
